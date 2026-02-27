@@ -48,6 +48,41 @@ function gitClone(org, repo, targetDir) {
   execSync(`git clone --depth=1 ${url} "${targetDir}"`, { stdio: "inherit" });
 }
 
+function escapeAngleBracketsInTypeLikeSyntax(md) {
+  // Escapes generics like Option<...>, Vec<...>, Result<...>, etc.
+  // Only inside text (not inside code fences), to avoid breaking code blocks.
+  const lines = md.split("\n");
+  let inCode = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Toggle code fence blocks
+    if (line.trim().startsWith("```")) {
+      inCode = !inCode;
+      continue;
+    }
+    if (inCode) continue;
+
+    // Replace <...> that appears after an identifier, e.g. Option<, Vec<, Result<, Box<, etc.
+    // Also covers patterns like Option<[**Vec<String>**](String.md)>
+    lines[i] = line
+      .replace(/([A-Za-z0-9_]+)</g, "$1&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  return lines.join("\n");
+}
+
+function walkFiles(dir, fn) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const e of entries) {
+    const full = path.join(dir, e.name);
+    if (e.isDirectory()) walkFiles(full, fn);
+    else fn(full);
+  }
+}
+
 async function main() {
   const raw = await fsp.readFile(CONFIG_PATH, "utf-8");
   const cfg = JSON.parse(raw);
@@ -76,10 +111,25 @@ async function main() {
       const readmeDest = path.join(destBase, "README.md");
       const hasReadme = safeCopyFile(readmeSrc, readmeDest);
 
+      if (hasReadme) {
+        const md = fs.readFileSync(readmeDest, "utf-8");
+        const fixed = escapeAngleBracketsInTypeLikeSyntax(md);
+        if (fixed !== md) fs.writeFileSync(readmeDest, fixed);
+      }
+
       // Copy docs/ -> docs/generated/<service>/<lang>/docs/
       const docsSrc = path.join(repoDir, "docs");
       const docsDest = path.join(destBase, "docs");
       const hasDocs = safeCopyDir(docsSrc, docsDest);
+
+      if (hasDocs) {
+        walkFiles(docsDest, (file) => {
+          if (!file.toLowerCase().endsWith(".md")) return;
+          const md = fs.readFileSync(file, "utf-8");
+          const fixed = escapeAngleBracketsInTypeLikeSyntax(md);
+          if (fixed !== md) fs.writeFileSync(file, fixed);
+        });
+      }
 
       // Write meta.json for navigation
       const meta = {

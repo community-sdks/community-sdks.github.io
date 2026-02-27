@@ -14,6 +14,9 @@
     "@vuepress/plugin-search": "^2.0.0-rc.19",
     "@vuepress/bundler-vite": "^2.0.0-rc.19"
   },
+  "devDependencies": {
+    "sass-embedded": "^1.77.0"
+  },
   "engines": {
     "node": ">=20"
   }

@@ -28,7 +28,6 @@ function toTitle(s) {
 
 function mdToRoute(mdFilePath) {
   // VuePress route is based on docs folder path relative to /docs
-  // We will link to generated paths (without .md)
   // Example: docs/generated/godaddy/php/README.md -> /generated/godaddy/php/
   const rel = mdFilePath.replace(/\\/g, "/").split("/docs/")[1];
   if (!rel) return "/";
@@ -48,7 +47,8 @@ function collectPages(serviceDir, service, lang) {
   const docsDir = path.join(base, "docs");
   if (isDir(docsDir)) {
     // Include top-level md files in docs/ as sidebar entries
-    const entries = fs.readdirSync(docsDir, { withFileTypes: true })
+    const entries = fs
+      .readdirSync(docsDir, { withFileTypes: true })
       .filter((d) => d.isFile() && d.name.toLowerCase().endsWith(".md"))
       .map((d) => {
         const full = path.join(docsDir, d.name);
@@ -69,12 +69,28 @@ async function main() {
 
   const navbar = [
     { text: "Home", link: "/" },
-    { text: "Services", children: services.map((s) => ({ text: toTitle(s), link: `/generated/${s}/` })) },
+    {
+      text: "Services",
+      children: services.map((s) => ({ text: toTitle(s), link: `/generated/${s}/` })),
+    },
     { text: "GitHub", link: "https://github.com/community-sdks" },
   ];
 
   // Sidebar per service root + per language
-  const sidebar = {};
+  // IMPORTANT: VuePress requires a sidebar config for "/" too, otherwise it errors:
+  // "/ is missing sidebar config."
+  const sidebar = {
+    "/": [
+      {
+        text: "Home",
+        children: [
+          { text: "Welcome", link: "/" },
+          ...services.map((s) => ({ text: toTitle(s), link: `/generated/${s}/` })),
+        ],
+      },
+    ],
+  };
+
   for (const service of services) {
     const serviceRoot = `/generated/${service}/`;
     const serviceDir = path.join(GENERATED_DIR, service);
@@ -119,8 +135,16 @@ async function main() {
     }
   }
 
-  const sidebarFile = `// AUTO-GENERATED FILE. DO NOT EDIT.\nexport default ${JSON.stringify(sidebar, null, 2)};\n`;
-  const navbarFile = `// AUTO-GENERATED FILE. DO NOT EDIT.\nexport default ${JSON.stringify(navbar, null, 2)};\n`;
+  const sidebarFile = `// AUTO-GENERATED FILE. DO NOT EDIT.\nexport default ${JSON.stringify(
+    sidebar,
+    null,
+    2
+  )};\n`;
+  const navbarFile = `// AUTO-GENERATED FILE. DO NOT EDIT.\nexport default ${JSON.stringify(
+    navbar,
+    null,
+    2
+  )};\n`;
 
   await fsp.mkdir(path.dirname(SIDEBAR_OUT), { recursive: true });
   await fsp.writeFile(SIDEBAR_OUT, sidebarFile, "utf-8");

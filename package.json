@@ -1,0 +1,19 @@
+{
+  "name": "community-sdks-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync": "node scripts/sync-repos.mjs",
+    "gen": "node scripts/generate-nav.mjs",
+    "docs:dev": "npm run sync && npm run gen && vuepress dev docs",
+    "docs:build": "npm run sync && npm run gen && vuepress build docs"
+  },
+  "dependencies": {
+    "vuepress": "^2.0.0-rc.19",
+    "@vuepress/theme-default": "^2.0.0-rc.19",
+    "@vuepress/plugin-search": "^2.0.0-rc.19"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

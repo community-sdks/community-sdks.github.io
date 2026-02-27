@@ -1,0 +1,10 @@
+node_modules
+.DS_Store
+
+# generated docs content
+docs/generated
+docs/.vuepress/sidebar.generated.js
+docs/.vuepress/navbar.generated.js
+
+# vuepress dist
+docs/.vuepress/dist

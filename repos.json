@@ -1,0 +1,7 @@
+{
+  "org": "community-sdks",
+  "services": {
+    "godaddy": ["godaddy-php", "godaddy-js", "godaddy-ts", "godaddy-go", "godaddy-rust", "godaddy-java", "godaddy-csharp", "godaddy-python", "godaddy-c", "godaddy-cpp"],
+    "mailcow": ["mailcow-php", "mailcow-js", "mailcow-ts", "mailcow-go", "mailcow-rust", "mailcow-java", "mailcow-csharp", "mailcow-python", "mailcow-c", "mailcow-cpp"]
+  }
+}

@@ -11,7 +11,8 @@
   "dependencies": {
     "vuepress": "^2.0.0-rc.19",
     "@vuepress/theme-default": "^2.0.0-rc.19",
-    "@vuepress/plugin-search": "^2.0.0-rc.19"
+    "@vuepress/plugin-search": "^2.0.0-rc.19",
+    "@vuepress/bundler-vite": "^2.0.0-rc.19"
   },
   "engines": {
     "node": ">=20"

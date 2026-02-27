@@ -1,5 +1,7 @@
 import { defaultTheme } from "@vuepress/theme-default";
 import { searchPlugin } from "@vuepress/plugin-search";
+import { viteBundler } from "@vuepress/bundler-vite";
+
 import sidebar from "./sidebar.generated.js";
 import navbar from "./navbar.generated.js";
 
@@ -9,9 +11,9 @@ export default {
   description: "Multi-language community SDKs for popular APIs.",
   base: "/",
 
-  head: [
-    ["link", { rel: "icon", href: "/logo.png" }],
-  ],
+  bundler: viteBundler(),
+
+  head: [["link", { rel: "icon", href: "/logo.png" }]],
 
   theme: defaultTheme({
     logo: "/logo.png",
@@ -26,7 +28,6 @@ export default {
 
   plugins: [
     searchPlugin({
-      // Default is fine, this keeps it simple and fast on GitHub Pages.
       maxSuggestions: 10,
     }),
   ],
